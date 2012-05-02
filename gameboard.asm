@@ -15,7 +15,7 @@
 #-Create a "game over" state (compare $s4 and $s5) (+10,-10,+1,-1)
 
 .data 
-Sz:         .word   100
+Sz: 	      .word   100
 gameboard:    .word   0:100	#There is a buffer here there really only needs to be 99
 a_star1:      .word   0:297	#These are three bytes wide: ADDR	HUER	PARENT
 openCount:	.word	0:1
@@ -25,6 +25,7 @@ hasPlayerGone:	.word	0:1
 #NL_size:      .word   10
 NL:           .asciiz "\n"
 int_value:    .word   2
+three:        .word   3
 
 ask_input:
 .asciiz "\Please Enter a value from 0-99\n"
@@ -42,7 +43,7 @@ please_move:
 .asciiz "\To move, press 1 to go left, press 2 to go right, press 3 to go up, press 4 to go down\n"
 
 print_invalid_move:
-.asciiz "\Invalid Move, Lose a Turn\n"
+.asciiz "\Invalid Move\n"
 
 print_game_over:
 .asciiz "\Game Over - The computer caught you from an adjacent spot\n"
@@ -73,7 +74,7 @@ init: #initializes the gameboard
 li $a1, 100
 li $v0, 42
 syscall
-li $t1, 3
+lw $t1, three
 li $t2, 4
 multu $a0, $t2
 mflo $t3
@@ -100,8 +101,10 @@ addi $s7, $s7, 1
 j print_loop 
 
 move_human_left:
-sw $t0, gameboard($s4)
-beq $t0, 3, invalid_move
+sub $t4, $s4, 4
+lw $t2, gameboard($t4)
+lw $t3, three
+beq $t2, $t3, invalid_move
 sw $zero, gameboard($s4)
 sub $s4, $s4, 4
 li $t1, 1
@@ -109,8 +112,12 @@ sw $t1, gameboard($s4)
 j print_loop
 
 move_human_down:
+add $t4, $s4, 40
+lw $t2, gameboard($t4)
+lw $t3, three
+beq $t2, $t3, invalid_move
 sw $t0, gameboard($s4)
-beq $t0, 3, invalid_move
+#beq $t0, 3, invalid_move
 sw $zero, gameboard($s4)
 add $s4, $s4, 40
 li $t1, 1
@@ -118,8 +125,12 @@ sw $t1, gameboard($s4)
 j print_loop
 
 move_human_right:
+add $t4, $s4, 4
+lw $t2, gameboard($t4)
+lw $t3, three
+beq $t2, $t3, invalid_move
 sw $t0, gameboard($s4)
-beq $t0, 3, invalid_move
+#beq $t0, 3, invalid_move
 sw $zero, gameboard($s4)
 add $s4, $s4, 4
 li $t1, 1
@@ -127,8 +138,12 @@ sw $t1, gameboard($s4)
 j print_loop
 
 move_human_up:
+sub $t4, $s4, 40
+lw $t2, gameboard($t4)
+lw $t3, three
+beq $t2, $t3, invalid_move
 sw $t0, gameboard($s4)
-beq $t0, 3, invalid_move
+#beq $t0, 3, invalid_move
 sw $zero, gameboard($s4)
 sub $s4, $s4, 40
 li $t1, 1
